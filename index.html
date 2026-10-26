@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chase Party | Social Network</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#0B0B10',
+                            card: '#15151F',
+                            cardHover: '#1D1D2C',
+                            border: '#2A2A3D',
+                            accent: '#3B82F6',
+                            purple: '#8B5CF6',
+                            neon: '#06B6D4',
+                            telebirr: '#005CB9'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Inter Font & FontAwesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B0B10;
+            color: #E2E8F0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0B10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A2A3D;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3B82F6;
+        }
+
+        .glass-panel {
+            background: rgba(21, 21, 31, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glow-blue {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+        }
+
+        .glow-purple {
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+        }
+
+        .pulse-subtle {
+            animation: pulse-animation 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-animation {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.98); }
+        }
+    </style>
+</head>
+<body class="bg-[#0B0B10] text-gray-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- TOP MOBILE & DESKTOP HEADER -->
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-brand-border">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('feed')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-purple-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid font-bold text-white text-xl">🎉</i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-300 bg-clip-text text-transparent">
+                        CHASE PARTY
+                    </h1>
+                    <span class="text-[10px] text-gray-400 block -mt-1 font-semibold tracking-widest uppercase">Social Hub</span>
+                </div>
+            </div>
+
+            <!-- Global Search Bar (Desktop) -->
+            <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+                    <input type="text" id="desktopSearchInput" onkeyup="handleSearch(this.value)" placeholder="Search users, posts, or #hashtags..." 
+                        class="w-full bg-[#15151F] border border-brand-border text-sm rounded-full pl-10 pr-4 py-2 text-gray-200 focus:outline-none focus:border-brand-accent transition">
+                </div>
+            </div>
+
+            <!-- User Auth & Action Buttons -->
+            <div class="flex items-center space-x-3">
+                
+                <!-- Notification Bell -->
+                <button onclick="toggleNotificationDropdown()" class="relative p-2.5 rounded-full bg-[#15151F] border border-brand-border hover:bg-brand-cardHover text-gray-300 transition">
+                    <i class="fa-solid fa-bell text-lg"></i>
+                    <span id="notifBadge" class="hidden absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-[#0B0B10]"></span>
+                </button>
+
+                <!-- Admin Badge (If logged in as Scarface) -->
+                <button id="adminHeaderBtn" onclick="navigateTo('admin')" class="hidden px-3 py-1.5 rounded-full bg-purple-900/40 border border-purple-500/50 text-purple-300 text-xs font-semibold flex items-center space-x-1.5 hover:bg-purple-800/50 transition">
+                    <i class="fa-solid fa-shield-halved text-purple-400"></i>
+                    <span class="hidden sm:inline">Owner Admin</span>
+                </button>
+
+                <!-- Profile Dropdown Avatar -->
+                <div id="headerUserAvatarContainer" class="relative cursor-pointer" onclick="toggleUserDropdown()">
+                    <img id="headerUserAvatar" src="https://placehold.co/100x100/15151F/3B82F6?text=User" alt="Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-brand-accent">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- NOTIFICATION DROPDOWN POPUP -->
+    <div id="notificationDropdown" class="hidden fixed right-4 top-18 z-50 w-80 md:w-96 glass-panel rounded-2xl shadow-2xl border border-brand-border overflow-hidden">
+        <div class="p-3 border-b border-brand-border flex justify-between items-center bg-[#15151F]">
+            <h3 class="font-bold text-sm text-gray-200">Notifications</h3>
+            <button onclick="clearNotifications()" class="text-xs text-brand-accent hover:underline">Clear all</button>
+        </div>
+        <div id="notificationList" class="max-h-80 overflow-y-auto divide-y divide-brand-border">
+            <!-- Dynamic Notifications Inserted Here -->
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-4 py-4 flex gap-6">
+
+        <!-- DESKTOP LEFT NAVIGATION SIDEBAR -->
+        <aside class="hidden md:flex flex-col w-64 shrink-0 gap-2 sticky top-20 h-[calc(100vh-6rem)]">
+            
+            <!-- User Profile Summary Card -->
+            <div class="glass-panel p-4 rounded-2xl border border-brand-border flex items-center space-x-3 mb-2">
+                <img id="sidebarUserAvatar" src="https://placehold.co/100x100/15151F/3B82F6?text=User" class="w-12 h-12 rounded-full object-cover border-2 border-brand-purple">
+                <div class="overflow-hidden">
+                    <h4 id="sidebarUserName" class="font-bold text-sm truncate">Guest User</h4>
+                    <p id="sidebarUserHandle" class="text-xs text-gray-400 truncate">@guest</p>
+                    <span id="sidebarUserStatus" class="inline-block px-2 py-0.5 mt-1 text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">FREE ACCESS</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="glass-panel p-2 rounded-2xl border border-brand-border flex flex-col gap-1">
+                <button onclick="navigateTo('feed')" id="nav-feed" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-brand-cardHover hover:text-brand-accent transition">
+                    <i class="fa-solid fa-house text-lg w-6"></i>
+                    <span>Home Feed</span>
+                </button>
+                <button onclick="navigateTo('explore')" id="nav-explore" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-brand-cardHover hover:text-brand-accent transition">
+                    <i class="fa-solid fa-compass text-lg w-6"></i>
+                    <span>Explore & Search</span>
+                </button>
+                <button onclick="navigateTo('connections')" id="nav-connections" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-brand-cardHover hover:text-brand-accent transition">
+                    <i class="fa-solid fa-users text-lg w-6"></i>
+                    <span>Connections</span>
+                    <span id="connectionsCountBadge" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-brand-accent text-white font-bold">0</span>
+                </button>
+                <button onclick="navigateTo('messages')" id="nav-messages" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-brand-cardHover hover:text-brand-accent transition">
+                    <i class="fa-solid fa-paper-plane text-lg w-6"></i>
+                    <span>Telegram Messages</span>
+                    <span id="unreadMsgBadge" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-purple-600 text-white font-bold hidden">0</span>
+                </button>
+                <button onclick="navigateTo('profile')" id="nav-profile" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-brand-cardHover hover:text-brand-accent transition">
+                    <i class="fa-solid fa-user text-lg w-6"></i>
+                    <span>My Profile</span>
+                </button>
+                <button onclick="navigateTo('subscription')" id="nav-subscription" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-gray-300 hover:bg-brand-cardHover hover:text-brand-accent transition">
+                    <i class="fa-solid fa-crown text-amber-400 text-lg w-6"></i>
+                    <span>Subscription Plan</span>
+                </button>
+                <button id="nav-admin" onclick="navigateTo('admin')" class="nav-btn hidden w-full items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-purple-300 hover:bg-purple-900/30 transition border border-purple-500/30">
+                    <i class="fa-solid fa-shield-cat text-lg w-6"></i>
+                    <span>Owner Dashboard</span>
+                </button>
+            </nav>
+
+            <!-- Mode Banner -->
+            <div id="sidebarModeBanner" class="mt-auto glass-panel p-3 rounded-2xl border border-brand-border text-center">
+                <p class="text-xs text-gray-400">Current Access Mode:</p>
+                <p id="systemModeText" class="text-sm font-bold text-emerald-400 mt-0.5">🟢 100% FREE LAUNCH</p>
+            </div>
+        </aside>
+
+        <!-- CENTER VIEWPORT CONTENT AREA -->
+        <section class="flex-1 min-w-0 pb-20 md:pb-6">
+
+            <!-- 1. AUTHENTICATION VIEW (SIGN IN / REGISTER) -->
+            <div id="view-auth" class="view-panel max-w-md mx-auto glass-panel p-6 sm:p-8 rounded-3xl border border-brand-border shadow-2xl my-6">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 mx-auto flex items-center justify-center text-3xl shadow-xl mb-3">
+                        🎉
+                    </div>
+                    <h2 class="text-2xl font-black tracking-tight text-gray-100">Welcome to Chase Party</h2>
+                    <p class="text-xs text-gray-400 mt-1">Connect, chat, and party without limits.</p>
+                </div>
+
+                <!-- Auth Tabs -->
+                <div class="flex border-b border-brand-border mb-6 text-center">
+                    <button id="tab-login-btn" onclick="switchAuthTab('login')" class="w-1/2 py-2 font-semibold text-sm border-b-2 border-brand-accent text-brand-accent">Sign In</button>
+                    <button id="tab-register-btn" onclick="switchAuthTab('register')" class="w-1/2 py-2 font-semibold text-sm border-b-2 border-transparent text-gray-400 hover:text-gray-200">Register</button>
+                </div>
+
+                <!-- SIGN IN FORM -->
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Email or Phone</label>
+                        <input type="text" id="loginEmail" placeholder="childbig988@gmail.com or +251..." required
+                            class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required
+                            class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200">
+                        Sign In to Party
+                    </button>
+                    <div class="p-3 bg-brand-card rounded-xl text-center border border-brand-border text-xs text-gray-400">
+                        <span class="text-brand-purple font-semibold">Owner Hint:</span> Use <span class="text-white font-mono">childbig988@gmail.com</span> / <span class="text-white font-mono">bigchild@2019</span> for Scarface Admin privileges.
+                    </div>
+                </form>
+
+                <!-- REGISTER FORM -->
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Full Name</label>
+                        <input type="text" id="regName" placeholder="Abebe Bikila" required
+                            class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Username</label>
+                        <input type="text" id="regUsername" placeholder="abebe_party" required
+                            class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Email</label>
+                        <input type="email" id="regEmail" placeholder="name@example.com" required
+                            class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Phone Number (Optional)</label>
+                        <input type="tel" id="regPhone" placeholder="+251 912 345 678"
+                            class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Password</label>
+                        <input type="password" id="regPassword" placeholder="Minimum 6 chars" minlength="6" required
+                            class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-brand-accent">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200">
+                        Create Chase Account
+                    </button>
+                </form>
+
+                <!-- Social Sign-in simulation -->
+                <div class="mt-6 text-center">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Or continue with</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="simulateGoogleAuth()" class="flex items-center justify-center space-x-2 bg-[#15151F] border border-brand-border py-2.5 rounded-xl hover:bg-brand-cardHover text-xs text-gray-200 font-medium transition">
+                            <i class="fa-brands fa-google text-red-500 text-sm"></i>
+                            <span>Google</span>
+                        </button>
+                        <button onclick="simulatePhoneOTP()" class="flex items-center justify-center space-x-2 bg-[#15151F] border border-brand-border py-2.5 rounded-xl hover:bg-brand-cardHover text-xs text-gray-200 font-medium transition">
+                            <i class="fa-solid fa-mobile-screen-button text-emerald-400 text-sm"></i>
+                            <span>SMS OTP</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. HOME SOCIAL FEED VIEW -->
+            <div id="view-feed" class="view-panel space-y-4">
+                
+                <!-- Create Post Box -->
+                <div class="glass-panel p-4 rounded-3xl border border-brand-border shadow-lg">
+                    <div class="flex items-start space-x-3">
+                        <img id="postBoxAvatar" src="https://placehold.co/100x100/15151F/3B82F6?text=User" class="w-10 h-10 rounded-full object-cover border border-brand-accent">
+                        <div class="flex-1">
+                            <textarea id="newPostContent" rows="3" placeholder="What's happening at the party?" 
+                                class="w-full bg-[#0B0B10] border border-brand-border rounded-2xl p-3 text-sm text-gray-100 focus:outline-none focus:border-brand-accent resize-none"></textarea>
+                            
+                            <!-- Optional Image URL Input -->
+                            <div class="mt-2 hidden" id="imageUrlContainer">
+                                <input type="text" id="postImageUrl" placeholder="Paste Image URL (e.g. https://images.unsplash.com/...)" 
+                                    class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-1.5 text-xs text-gray-300 focus:outline-none">
+                            </div>
+
+                            <div class="flex items-center justify-between mt-3 pt-2 border-t border-brand-border/50">
+                                <div class="flex space-x-2 text-gray-400 text-sm">
+                                    <button onclick="toggleImageUrlInput()" class="p-2 hover:bg-brand-cardHover rounded-xl hover:text-brand-accent transition flex items-center space-x-1 text-xs">
+                                        <i class="fa-solid fa-image text-emerald-400"></i>
+                                        <span>Photo</span>
+                                    </button>
+                                    <button onclick="insertTag('#ChaseParty')" class="p-2 hover:bg-brand-cardHover rounded-xl hover:text-brand-purple transition text-xs">
+                                        <i class="fa-solid fa-hashtag text-purple-400"></i>
+                                        <span>Tag</span>
+                                    </button>
+                                </div>
+                                <button onclick="createPost()" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold px-5 py-2 rounded-xl shadow-md transition">
+                                    Publish Post
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed Filter Tabs -->
+                <div class="flex items-center justify-between px-2">
+                    <h3 class="font-bold text-sm text-gray-300">Community Feed</h3>
+                    <div class="flex space-x-1 bg-[#15151F] p-1 rounded-xl border border-brand-border text-xs">
+                        <button onclick="filterFeed('all')" id="feed-filter-all" class="px-3 py-1 rounded-lg font-medium text-brand-accent bg-brand-bg">All Posts</button>
+                        <button onclick="filterFeed('following')" id="feed-filter-following" class="px-3 py-1 rounded-lg font-medium text-gray-400 hover:text-gray-200">Following</button>
+                    </div>
+                </div>
+
+                <!-- Posts List Container -->
+                <div id="postsFeedContainer" class="space-y-4">
+                    <!-- Dynamic Posts Rendered Here -->
+                </div>
+            </div>
+
+            <!-- 3. EXPLORE & SEARCH VIEW -->
+            <div id="view-explore" class="view-panel space-y-4 hidden">
+                <div class="glass-panel p-4 rounded-3xl border border-brand-border shadow-lg">
+                    <h2 class="text-xl font-bold text-gray-100 mb-3">Explore Chase Party</h2>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+                        <input type="text" id="mobileSearchInput" onkeyup="handleSearch(this.value)" placeholder="Search users by name, handle, or bio..." 
+                            class="w-full bg-[#0B0B10] border border-brand-border text-sm rounded-xl pl-10 pr-4 py-2.5 text-gray-200 focus:outline-none focus:border-brand-accent">
+                    </div>
+                </div>
+
+                <!-- Suggested People Section -->
+                <div class="glass-panel p-5 rounded-3xl border border-brand-border">
+                    <h3 class="font-bold text-sm text-gray-200 mb-4 flex items-center space-x-2">
+                        <i class="fa-solid fa-user-plus text-brand-accent"></i>
+                        <span>Recommended People for You</span>
+                    </h3>
+                    <div id="exploreUsersList" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Dynamic User Recommendation Cards -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. CONNECTIONS & FRIENDS VIEW -->
+            <div id="view-connections" class="view-panel space-y-4 hidden">
+                <div class="glass-panel p-5 rounded-3xl border border-brand-border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-100">Your Connections</h2>
+                        <span id="connectionsTotalText" class="text-xs text-brand-purple font-semibold">0 Connections</span>
+                    </div>
+
+                    <!-- Pending Incoming Requests -->
+                    <div class="mb-6">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Pending Friend Requests</h3>
+                        <div id="pendingRequestsList" class="space-y-2">
+                            <!-- Dynamic Requests -->
+                        </div>
+                    </div>
+
+                    <!-- Active Friends List -->
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Active Connections</h3>
+                        <div id="activeFriendsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Dynamic Friends -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. TELEGRAM-INSPIRED MESSAGES VIEW -->
+            <div id="view-messages" class="view-panel hidden">
+                <div class="glass-panel rounded-3xl border border-brand-border h-[calc(100vh-10rem)] md:h-[600px] flex overflow-hidden shadow-2xl">
+                    
+                    <!-- Conversations Sidebar -->
+                    <div id="chatSidebar" class="w-full md:w-80 border-r border-brand-border flex flex-col bg-[#15151F]">
+                        <div class="p-3 border-b border-brand-border flex items-center justify-between">
+                            <h3 class="font-bold text-base text-gray-200">Chats</h3>
+                            <button onclick="openNewGroupModal()" class="p-2 rounded-xl bg-brand-bg hover:bg-brand-cardHover text-brand-accent text-xs font-bold flex items-center space-x-1">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Group</span>
+                            </button>
+                        </div>
+                        <div id="conversationsList" class="flex-1 overflow-y-auto divide-y divide-brand-border">
+                            <!-- Dynamic Conversation Items -->
+                        </div>
+                    </div>
+
+                    <!-- Chat Active Window -->
+                    <div id="chatWindow" class="hidden md:flex flex-1 flex-col bg-[#0B0B10]">
+                        
+                        <!-- Chat Header -->
+                        <div id="chatHeader" class="p-3 border-b border-brand-border glass-panel flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <button onclick="backToChatList()" class="md:hidden text-gray-400 hover:text-white p-1">
+                                    <i class="fa-solid fa-arrow-left text-lg"></i>
+                                </button>
+                                <img id="chatHeaderAvatar" src="https://placehold.co/100x100/15151F/3B82F6?text=Chat" class="w-9 h-9 rounded-full object-cover border border-brand-accent">
+                                <div>
+                                    <h4 id="chatHeaderTitle" class="font-bold text-sm text-gray-100">Select a Conversation</h4>
+                                    <span id="chatHeaderStatus" class="text-[10px] text-emerald-400 font-medium">Online</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages Container -->
+                        <div id="chatMessagesContainer" class="flex-1 p-4 overflow-y-auto space-y-3 bg-opacity-30 bg-repeat" style="background-image: radial-gradient(#15151F 1px, transparent 1px); background-size: 16px 16px;">
+                            <div class="text-center text-xs text-gray-500 my-4">Select a connection to start messaging on Chase Party</div>
+                        </div>
+
+                        <!-- Chat Input Bar -->
+                        <div class="p-3 border-t border-brand-border glass-panel flex items-center space-x-2">
+                            <input type="text" id="chatInput" onkeydown="if(event.key==='Enter') sendChatMessage()" placeholder="Write a Telegram-style message..." 
+                                class="flex-1 bg-[#15151F] border border-brand-border rounded-xl px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-brand-accent">
+                            <button onclick="sendChatMessage()" class="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white flex items-center justify-center shadow-lg">
+                                <i class="fa-solid fa-paper-plane text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. USER PROFILE VIEW -->
+            <div id="view-profile" class="view-panel space-y-4 hidden">
+                <div class="glass-panel rounded-3xl border border-brand-border overflow-hidden shadow-xl">
+                    <!-- Profile Header Cover -->
+                    <div id="profileCover" class="h-36 sm:h-48 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-950 relative">
+                        <button onclick="triggerCoverEdit()" class="absolute top-3 right-3 bg-black/50 backdrop-blur-md border border-white/20 text-white text-xs px-3 py-1.5 rounded-xl hover:bg-black/70">
+                            <i class="fa-solid fa-camera mr-1"></i> Edit Cover
+                        </button>
+                    </div>
+
+                    <!-- Avatar & Bio Section -->
+                    <div class="px-6 pb-6 relative">
+                        <div class="flex flex-col sm:flex-row sm:items-end justify-between -mt-16 sm:-mt-20 mb-4 gap-4">
+                            <div class="relative w-28 h-28 sm:w-32 sm:h-32">
+                                <img id="profileAvatar" src="https://placehold.co/150x150/15151F/3B82F6?text=Avatar" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-[#0B0B10] shadow-2xl">
+                                <button onclick="triggerAvatarEdit()" class="absolute bottom-1 right-1 bg-brand-accent text-white w-8 h-8 rounded-full border-2 border-[#0B0B10] flex items-center justify-center text-xs shadow-md">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="openEditProfileModal()" class="px-4 py-2 rounded-xl bg-[#15151F] border border-brand-border text-xs font-semibold hover:bg-brand-cardHover transition">
+                                    Edit Profile
+                                </button>
+                                <button onclick="handleLogout()" class="px-4 py-2 rounded-xl bg-red-900/30 border border-red-500/40 text-red-300 text-xs font-semibold hover:bg-red-800/40 transition">
+                                    Log Out
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 id="profileName" class="text-2xl font-black text-gray-100">Guest User</h2>
+                            <p id="profileHandle" class="text-sm text-brand-accent font-medium">@guest</p>
+                            <p id="profileBio" class="text-sm text-gray-300 mt-2 leading-relaxed">No bio added yet. Click edit profile to tell the party about yourself!</p>
+
+                            <!-- User Stats -->
+                            <div class="flex space-x-6 mt-4 pt-4 border-t border-brand-border/60 text-xs">
+                                <div>
+                                    <span id="profilePostsCount" class="font-bold text-gray-100 text-base block">0</span>
+                                    <span class="text-gray-400">Posts</span>
+                                </div>
+                                <div>
+                                    <span id="profileConnectionsCount" class="font-bold text-gray-100 text-base block">0</span>
+                                    <span class="text-gray-400">Connections</span>
+                                </div>
+                                <div>
+                                    <span id="profileStatusBadge" class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                        FREE ACCESS ACTIVE
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile User's Posts Feed -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-base text-gray-200 px-2">Your Published Posts</h3>
+                    <div id="profilePostsContainer" class="space-y-4">
+                        <!-- Dynamic User Posts -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. SUBSCRIPTION & TELEBIRR PAYMENT VIEW -->
+            <div id="view-subscription" class="view-panel space-y-6 hidden">
+                <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-brand-border shadow-2xl text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 mx-auto flex items-center justify-center text-3xl shadow-xl mb-4">
+                        👑
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-100">Chase Party Premium Access</h2>
+                    <p class="text-xs text-gray-400 mt-1 max-w-md mx-auto">
+                        Unlock verified badges, unlimited HD group messaging, custom themes, and priority channel broadcasting.
+                    </p>
+
+                    <!-- Free Access Announcement -->
+                    <div id="subStatusBanner" class="my-6 p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-sm font-semibold">
+                        🟢 LAUNCH OFFER: The platform is currently in <span class="uppercase tracking-wider font-extrabold text-white">FREE ACCESS MODE</span>. All features are unlocked for all users!
+                    </div>
+
+                    <!-- Pricing Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto my-6">
+                        
+                        <!-- Monthly Plan -->
+                        <div class="glass-panel p-5 rounded-2xl border border-brand-border flex flex-col justify-between hover:border-brand-accent transition">
+                            <div>
+                                <span class="text-xs font-bold text-brand-accent uppercase tracking-wider">Monthly Pass</span>
+                                <div class="my-3">
+                                    <span id="displayMonthlyPrice" class="text-3xl font-black text-white">5</span>
+                                    <span class="text-sm font-bold text-gray-400"> ETB / Month</span>
+                                </div>
+                                <ul class="text-xs text-gray-300 space-y-2 text-left mb-6">
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Standard Social Features</li>
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Telegram Messaging</li>
+                                    <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Telebirr Direct Checkout</li>
+                                </ul>
+                            </div>
+                            <button onclick="initiateTelebirrPayment('monthly')" id="payMonthlyBtn" class="w-full py-2.5 rounded-xl bg-brand-telebirr text-white font-bold text-xs shadow-lg hover:bg-blue-700 transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                                <span>Pay with Telebirr</span>
+                            </button>
+                        </div>
+
+                        <!-- Annual Plan -->
+                        <div class="glass-panel p-5 rounded-2xl border-2 border-brand-purple flex flex-col justify-between relative overflow-hidden">
+                            <span class="absolute top-2 right-2 bg-brand-purple text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">Best Value</span>
+                            <div>
+                                <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">Annual VIP Pass</span>
+                                <div class="my-3">
+                                    <span id="displayAnnualPrice" class="text-3xl font-black text-white">60</span>
+                                    <span class="text-sm font-bold text-gray-400"> ETB / Year</span>
+                                </div>
+                                <ul class="text-xs text-gray-300 space-y-2 text-left mb-6">
+                                    <li><i class="fa-solid fa-check text-purple-400 mr-2"></i> All Monthly Features</li>
+                                    <li><i class="fa-solid fa-check text-purple-400 mr-2"></i> Verified Gold Crown Badge</li>
+                                    <li><i class="fa-solid fa-check text-purple-400 mr-2"></i> 2 Months Free Savings</li>
+                                </ul>
+                            </div>
+                            <button onclick="initiateTelebirrPayment('annual')" id="payAnnualBtn" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs shadow-lg hover:from-purple-500 hover:to-indigo-500 transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-crown"></i>
+                                <span>Pay Annual Telebirr</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Telebirr Destination Details -->
+                    <div class="p-4 bg-[#15151F] rounded-2xl border border-brand-border text-left max-w-2xl mx-auto text-xs">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">t</div>
+                            <div>
+                                <h4 class="font-bold text-gray-200">Telebirr Official Merchant Receiver</h4>
+                                <p class="text-gray-400">Ethio Telecom Payment Gateway Support</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-300">Target Phone Number: <span class="font-mono font-bold text-amber-400">090 8639905</span></p>
+                        <p class="text-[11px] text-gray-400 mt-1">Manual payment verification slips are submitted directly to Scarface Admin for instant automated approval.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. OWNER ADMIN DASHBOARD (SCARFACE EXCLUSIVE) -->
+            <div id="view-admin" class="view-panel space-y-6 hidden">
+                <div class="glass-panel p-6 rounded-3xl border border-purple-500/40 shadow-2xl">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-brand-border">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 rounded-full bg-purple-900/60 border border-purple-400/40 text-purple-300 text-[10px] font-extrabold tracking-wider uppercase">Exclusive Owner Access</span>
+                                <span class="text-xs text-gray-400 font-mono">childbig988@gmail.com</span>
+                            </div>
+                            <h2 class="text-2xl font-black text-gray-100 mt-1">Scarface Platform Control</h2>
+                        </div>
+                        <button onclick="loadAdminStats()" class="px-3 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-500 transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Refresh Data
+                        </button>
+                    </div>
+
+                    <!-- System Statistics Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
+                        <div class="p-4 rounded-2xl bg-[#15151F] border border-brand-border">
+                            <span class="text-xs text-gray-400 font-medium">Total Users</span>
+                            <h3 id="statTotalUsers" class="text-2xl font-black text-brand-accent mt-1">0</h3>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-[#15151F] border border-brand-border">
+                            <span class="text-xs text-gray-400 font-medium">Total Posts</span>
+                            <h3 id="statTotalPosts" class="text-2xl font-black text-purple-400 mt-1">0</h3>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-[#15151F] border border-brand-border">
+                            <span class="text-xs text-gray-400 font-medium">System Access Mode</span>
+                            <h3 id="statSystemMode" class="text-lg font-black text-emerald-400 mt-1">FREE</h3>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-[#15151F] border border-brand-border">
+                            <span class="text-xs text-gray-400 font-medium">Pending Telebirr</span>
+                            <h3 id="statPendingPayments" class="text-2xl font-black text-amber-400 mt-1">0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Owner Controls Form -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Toggle Launch Mode & Pricing -->
+                        <div class="p-5 rounded-2xl bg-[#15151F] border border-brand-border space-y-4">
+                            <h3 class="font-bold text-sm text-gray-200 flex items-center space-x-2">
+                                <i class="fa-solid fa-sliders text-brand-accent"></i>
+                                <span>Platform Mode & Telebirr Pricing</span>
+                            </h3>
+
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1 font-semibold">Platform Access Mode</label>
+                                <select id="adminModeSelect" class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-2 text-sm text-gray-200">
+                                    <option value="FREE">FREE ACCESS (All features unlocked for everyone)</option>
+                                    <option value="PAID">PAID SUBSCRIPTION MODE (Require Telebirr active plan)</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 font-semibold">Monthly Price (ETB)</label>
+                                    <input type="number" id="adminMonthlyPrice" value="5" min="0" class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-2 text-sm text-gray-200">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 font-semibold">Annual Price (ETB)</label>
+                                    <input type="number" id="adminAnnualPrice" value="60" min="0" class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-2 text-sm text-gray-200">
+                                </div>
+                            </div>
+
+                            <button onclick="saveAdminSettings()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xs shadow-lg hover:from-blue-500 hover:to-purple-500 transition">
+                                Update Settings
+                            </button>
+                        </div>
+
+                        <!-- Telebirr Verification Queue -->
+                        <div class="p-5 rounded-2xl bg-[#15151F] border border-brand-border space-y-3 flex flex-col">
+                            <h3 class="font-bold text-sm text-gray-200 flex items-center space-x-2">
+                                <i class="fa-solid fa-receipt text-amber-400"></i>
+                                <span>Pending Telebirr Payment Queue</span>
+                            </h3>
+                            <div id="adminPaymentQueue" class="flex-1 overflow-y-auto max-h-48 divide-y divide-brand-border">
+                                <!-- Dynamic Pending Payments -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Account Management Table -->
+                    <div class="mt-6 p-5 rounded-2xl bg-[#15151F] border border-brand-border">
+                        <h3 class="font-bold text-sm text-gray-200 mb-3">Registered Users Management</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-gray-300">
+                                <thead class="bg-[#0B0B10] uppercase text-gray-400 font-semibold border-b border-brand-border">
+                                    <tr>
+                                        <th class="p-3">User</th>
+                                        <th class="p-3">Email</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminUserTableBody" class="divide-y divide-brand-border">
+                                    <!-- Dynamic Users List -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-brand-border px-2 py-2">
+        <div class="flex items-center justify-around">
+            <button onclick="navigateTo('feed')" id="mobile-nav-feed" class="mobile-nav-btn flex flex-col items-center p-1.5 text-brand-accent">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[10px] mt-0.5 font-medium">Home</span>
+            </button>
+            <button onclick="navigateTo('explore')" id="mobile-nav-explore" class="mobile-nav-btn flex flex-col items-center p-1.5 text-gray-400">
+                <i class="fa-solid fa-compass text-lg"></i>
+                <span class="text-[10px] mt-0.5 font-medium">Explore</span>
+            </button>
+            <button onclick="navigateTo('connections')" id="mobile-nav-connections" class="mobile-nav-btn flex flex-col items-center p-1.5 text-gray-400 relative">
+                <i class="fa-solid fa-users text-lg"></i>
+                <span class="text-[10px] mt-0.5 font-medium">Friends</span>
+            </button>
+            <button onclick="navigateTo('messages')" id="mobile-nav-messages" class="mobile-nav-btn flex flex-col items-center p-1.5 text-gray-400 relative">
+                <i class="fa-solid fa-paper-plane text-lg"></i>
+                <span class="text-[10px] mt-0.5 font-medium">Chat</span>
+            </button>
+            <button onclick="navigateTo('profile')" id="mobile-nav-profile" class="mobile-nav-btn flex flex-col items-center p-1.5 text-gray-400">
+                <i class="fa-solid fa-user text-lg"></i>
+                <span class="text-[10px] mt-0.5 font-medium">Profile</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- TELEBIRR PAYMENT MODAL -->
+    <div id="telebirrModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-3xl border border-brand-border shadow-2xl relative">
+            <button onclick="closeTelebirrModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center">
+                <div class="w-14 h-14 rounded-2xl bg-blue-600 mx-auto flex items-center justify-center text-white text-2xl font-bold mb-3">
+                    t
+                </div>
+                <h3 class="font-black text-lg text-gray-100">Telebirr Checkout</h3>
+                <p id="telebirrModalPlanText" class="text-xs text-gray-400 mt-1">Monthly Pass Access</p>
+                <p id="telebirrModalPriceText" class="text-2xl font-extrabold text-amber-400 my-2">5 ETB</p>
+            </div>
+
+            <div class="space-y-3 mt-4 text-xs">
+                <div class="p-3 bg-[#0B0B10] rounded-xl border border-brand-border">
+                    <p class="text-gray-400">1. Transfer to Merchant Phone Number:</p>
+                    <p class="font-mono font-bold text-base text-brand-accent mt-0.5">090 8639905</p>
+                    <p class="text-[10px] text-gray-500">Receiver Name: Scarface Chase Party</p>
+                </div>
+
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">2. Enter Telebirr Transaction Reference ID</label>
+                    <input type="text" id="telebirrTxInput" placeholder="e.g. TLB-98765432" 
+                        class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-brand-accent">
+                </div>
+
+                <button onclick="submitTelebirrProof()" class="w-full py-3 rounded-xl bg-brand-telebirr hover:bg-blue-700 text-white font-bold text-xs shadow-lg transition">
+                    Submit Payment Reference
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE MODAL -->
+    <div id="editProfileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel max-w-md w-full p-6 rounded-3xl border border-brand-border shadow-2xl relative">
+            <button onclick="closeEditProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-bold text-lg text-gray-100 mb-4">Edit Profile Details</h3>
+            
+            <form onsubmit="saveProfileDetails(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Display Name</label>
+                    <input type="text" id="editProfileName" class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-2 text-sm text-gray-200">
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Biography</label>
+                    <textarea id="editProfileBio" rows="3" class="w-full bg-[#0B0B10] border border-brand-border rounded-xl p-3 text-sm text-gray-200 resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Avatar Image URL</label>
+                    <input type="text" id="editProfileAvatarUrl" placeholder="https://..." class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-2 text-sm text-gray-200">
+                </div>
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-accent text-white font-bold text-xs shadow-lg">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CREATE GROUP CHAT MODAL -->
+    <div id="newGroupModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-3xl border border-brand-border shadow-2xl relative">
+            <button onclick="closeNewGroupModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="font-bold text-lg text-gray-100 mb-3">Create Telegram Group</h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">Group Name</label>
+                    <input type="text" id="groupNameInput" placeholder="e.g. VIP Party Squad" class="w-full bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-2 text-sm text-gray-100">
+                </div>
+                <button onclick="createGroupChat()" class="w-full py-2.5 rounded-xl bg-purple-600 text-white font-bold text-xs shadow-lg">
+                    Create Group Chat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION LOGIC INLINE JAVASCRIPT -->
+    <script>
+        /* ==========================================================================
+           STATE MANAGEMENT & STORAGE ENGINE
+           ========================================================================== */
+        
+        const DEFAULT_SETTINGS = {
+            mode: 'FREE', // FREE or PAID
+            monthlyPrice: 5,
+            annualPrice: 60,
+            telebirrNumber: '090 8639905'
+        };
+
+        const PRESEEDED_USERS = [
+            {
+                id: 'u-scarface',
+                name: 'Scarface',
+                username: 'scarface_owner',
+                email: 'childbig988@gmail.com',
+                password: 'bigchild@2019',
+                bio: 'Official Owner and Architect of Chase Party Social Network. Welcome to the party!',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+                isOwner: true,
+                status: 'VIP OWNER'
+            },
+            {
+                id: 'u-abebe',
+                name: 'Abebe Kebede',
+                username: 'abebe_k',
+                email: 'abebe@example.com',
+                password: 'password123',
+                bio: 'Tech enthusiast & music lover from Addis Ababa 🇪🇹',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+                isOwner: false,
+                status: 'FREE'
+            },
+            {
+                id: 'u-selam',
+                name: 'Selamawit Tadesse',
+                username: 'selam_party',
+                email: 'selam@example.com',
+                password: 'password123',
+                bio: 'Digital creator | Chase Party ambassador 🎉',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+                isOwner: false,
+                status: 'FREE'
+            }
+        ];
+
+        const PRESEEDED_POSTS = [
+            {
+                id: 'p-1',
+                userId: 'u-scarface',
+                content: 'Welcome to CHASE PARTY! 🎉 The platform is now officially LIVE in FREE ACCESS mode. Connect with friends and chat in real-time!',
+                imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop&q=80',
+                createdAt: new Date(Date.now() - 3600000).toISOString(),
+                likes: ['u-abebe', 'u-selam'],
+                comments: [
+                    { id: 'c-1', userId: 'u-selam', text: 'Congrats Scarface! Super sleek dark UI! 🚀', createdAt: new Date().toISOString() }
+                ]
+            },
+            {
+                id: 'p-2',
+                userId: 'u-selam',
+                content: 'Exploring the new Telegram-style messaging feature on Chase Party. The instant real-time sync is smooth! 🔥 #ChaseParty',
+                imageUrl: '',
+                createdAt: new Date(Date.now() - 1800000).toISOString(),
+                likes: ['u-scarface'],
+                comments: []
+            }
+        ];
+
+        // Global State Objects
+        let appState = {
+            currentUser: null,
+            users: [],
+            posts: [],
+            connections: [], // { from, to, status: 'pending' | 'accepted' }
+            conversations: [], // { id, name, isGroup, participants: [], messages: [] }
+            notifications: [],
+            payments: [], // Telebirr verification records
+            settings: DEFAULT_SETTINGS
+        };
+
+        let currentActiveChatId = null;
+
+        // Initialize App Engine
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStorage();
+            
+            // Auto login preseeded owner if no user
+            if (!appState.currentUser) {
+                appState.currentUser = appState.users.find(u => u.isOwner) || appState.users[0];
+                saveStorage();
+            }
+
+            renderUserProfile();
+            renderHeaderAndSidebar();
+            renderPosts();
+            renderExploreUsers();
+            renderConnections();
+            renderConversations();
+            loadAdminStats();
+
+            // Default route
+            navigateTo('feed');
+        });
+
+        function loadStorage() {
+            const stored = localStorage.getItem('chase_party_db_v1');
+            if (stored) {
+                try {
+                    appState = JSON.parse(stored);
+                } catch(e) {
+                    console.error('Failed parsing storage:', e);
+                }
+            } else {
+                appState.users = PRESEEDED_USERS;
+                appState.posts = PRESEEDED_POSTS;
+                appState.settings = DEFAULT_SETTINGS;
+                
+                // Preseed sample conversation
+                appState.conversations = [
+                    {
+                        id: 'chat-global',
+                        name: 'Chase Party Public Squad',
+                        isGroup: true,
+                        participants: ['u-scarface', 'u-abebe', 'u-selam'],
+                        messages: [
+                            { id: 'm-1', senderId: 'u-scarface', text: 'Welcome to the global group chat!', timestamp: new Date().toISOString() }
+                        ]
+                    }
+                ];
+                saveStorage();
+            }
+        }
+
+        function saveStorage() {
+            localStorage.setItem('chase_party_db_v1', JSON.stringify(appState));
+        }
+
+        /* ==========================================================================
+           NAVIGATION & ROUTING ENGINE
+           ========================================================================== */
+
+        function navigateTo(viewName) {
+            // Guard view for admin
+            if (viewName === 'admin' && (!appState.currentUser || !appState.currentUser.isOwner)) {
+                alert('Access Denied: Owner Scarface authentication required.');
+                return;
+            }
+
+            // Hide all view panels
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+
+            // Show selected view
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            // Highlight Desktop Nav
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-cardHover', 'text-brand-accent');
+            });
+            const activeNav = document.getElementById(`nav-${viewName}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-brand-cardHover', 'text-brand-accent');
+            }
+
+            // Highlight Mobile Bottom Nav
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                btn.classList.remove('text-brand-accent');
+                btn.classList.add('text-gray-400');
+            });
+            const activeMobileNav = document.getElementById(`mobile-nav-${viewName}`);
+            if (activeMobileNav) {
+                activeMobileNav.classList.remove('text-gray-400');
+                activeMobileNav.classList.add('text-brand-accent');
+            }
+
+            // Refresh view-specific content
+            if (viewName === 'feed') renderPosts();
+            if (viewName === 'explore') renderExploreUsers();
+            if (viewName === 'connections') renderConnections();
+            if (viewName === 'messages') renderConversations();
+            if (viewName === 'admin') loadAdminStats();
+            if (viewName === 'profile') renderUserProfile();
+        }
+
+        /* ==========================================================================
+           AUTHENTICATION & USER ENGINE
+           ========================================================================== */
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const regForm = document.getElementById('registerForm');
+            const loginBtn = document.getElementById('tab-login-btn');
+            const regBtn = document.getElementById('tab-register-btn');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                loginBtn.className = "w-1/2 py-2 font-semibold text-sm border-b-2 border-brand-accent text-brand-accent";
+                regBtn.className = "w-1/2 py-2 font-semibold text-sm border-b-2 border-transparent text-gray-400";
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                regBtn.className = "w-1/2 py-2 font-semibold text-sm border-b-2 border-brand-accent text-brand-accent";
+                loginBtn.className = "w-1/2 py-2 font-semibold text-sm border-b-2 border-transparent text-gray-400";
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+
+            const user = appState.users.find(u => (u.email === email || u.username === email) && u.password === pass);
+
+            if (user) {
+                appState.currentUser = user;
+                saveStorage();
+                renderHeaderAndSidebar();
+                renderUserProfile();
+                navigateTo('feed');
+            } else {
+                alert('Invalid Email/Username or Password.');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPassword').value.trim();
+
+            if (appState.users.some(u => u.email === email || u.username === username)) {
+                alert('Email or Username already taken.');
+                return;
+            }
+
+            const newUser = {
+                id: `u-${Date.now()}`,
+                name: name,
+                username: username,
+                email: email,
+                password: pass,
+                bio: 'Hey there! I am partying on Chase Party.',
+                avatar: `https://placehold.co/150x150/15151F/3B82F6?text=${name.charAt(0)}`,
+                isOwner: email === 'childbig988@gmail.com',
+                status: 'FREE'
+            };
+
+            appState.users.push(newUser);
+            appState.currentUser = newUser;
+            saveStorage();
+            renderHeaderAndSidebar();
+            renderUserProfile();
+            navigateTo('feed');
+        }
+
+        function handleLogout() {
+            appState.currentUser = null;
+            saveStorage();
+            renderHeaderAndSidebar();
+            navigateTo('auth');
+        }
+
+        function simulateGoogleAuth() {
+            const email = "google_user_" + Math.floor(Math.random() * 1000) + "@gmail.com";
+            let user = appState.users.find(u => u.email === email);
+            if (!user) {
+                user = {
+                    id: `u-g-${Date.now()}`,
+                    name: 'Google Party User',
+                    username: `g_user_${Date.now()}`,
+                    email: email,
+                    password: 'oauth_simulated',
+                    bio: 'Signed in with Google OAuth.',
+                    avatar: 'https://placehold.co/150x150/15151F/06B6D4?text=G',
+                    isOwner: false,
+                    status: 'FREE'
+                };
+                appState.users.push(user);
+            }
+            appState.currentUser = user;
+            saveStorage();
+            renderHeaderAndSidebar();
+            navigateTo('feed');
+        }
+
+        function simulatePhoneOTP() {
+            const phone = prompt('Enter Ethiopian Phone Number (+251...):', '+251 900 123 456');
+            if (phone) {
+                const otp = prompt('Enter 6-digit SMS OTP Code sent to ' + phone + ':', '123456');
+                if (otp === '123456') {
+                    let user = {
+                        id: `u-p-${Date.now()}`,
+                        name: 'SMS Verified User',
+                        username: `phone_${Date.now().toString().slice(-4)}`,
+                        email: `${phone.replace(/\s+/g,'')}@phone.com`,
+                        password: 'otp_simulated',
+                        bio: 'Phone OTP Authenticated User.',
+                        avatar: 'https://placehold.co/150x150/15151F/10B981?text=SMS',
+                        isOwner: false,
+                        status: 'FREE'
+                    };
+                    appState.users.push(user);
+                    appState.currentUser = user;
+                    saveStorage();
+                    renderHeaderAndSidebar();
+                    navigateTo('feed');
+                } else {
+                    alert('Invalid OTP Code.');
+                }
+            }
+        }
+
+        function renderHeaderAndSidebar() {
+            const u = appState.currentUser;
+            if (!u) return;
+
+            // Header Avatar
+            document.getElementById('headerUserAvatar').src = u.avatar;
+            document.getElementById('postBoxAvatar').src = u.avatar;
+
+            // Sidebar Details
+            document.getElementById('sidebarUserAvatar').src = u.avatar;
+            document.getElementById('sidebarUserName').innerText = u.name;
+            document.getElementById('sidebarUserHandle').innerText = `@${u.username}`;
+
+            // Admin Buttons Visibility
+            const adminHeaderBtn = document.getElementById('adminHeaderBtn');
+            const navAdmin = document.getElementById('nav-admin');
+
+            if (u.isOwner) {
+                adminHeaderBtn.classList.remove('hidden');
+                navAdmin.classList.remove('hidden');
+                navAdmin.classList.add('flex');
+            } else {
+                adminHeaderBtn.classList.add('hidden');
+                navAdmin.classList.add('hidden');
+            }
+
+            // Access Mode Status Text
+            const modeText = document.getElementById('systemModeText');
+            if (appState.settings.mode === 'FREE') {
+                modeText.innerText = '🟢 100% FREE LAUNCH';
+                modeText.className = 'text-sm font-bold text-emerald-400 mt-0.5';
+            } else {
+                modeText.innerText = '🔒 PAID ACCESS ACTIVE';
+                modeText.className = 'text-sm font-bold text-amber-400 mt-0.5';
+            }
+        }
+
+        /* ==========================================================================
+           SOCIAL POSTS & FEED ENGINE
+           ========================================================================== */
+
+        function createPost() {
+            const content = document.getElementById('newPostContent').value.trim();
+            const imageUrl = document.getElementById('postImageUrl').value.trim();
+
+            if (!content) {
+                alert('Please type something to post!');
+                return;
+            }
+
+            const newPost = {
+                id: `p-${Date.now()}`,
+                userId: appState.currentUser.id,
+                content: content,
+                imageUrl: imageUrl,
+                createdAt: new Date().toISOString(),
+                likes: [],
+                comments: []
+            };
+
+            appState.posts.unshift(newPost);
+            saveStorage();
+
+            document.getElementById('newPostContent').value = '';
+            document.getElementById('postImageUrl').value = '';
+            document.getElementById('imageUrlContainer').classList.add('hidden');
+
+            renderPosts();
+        }
+
+        function toggleImageUrlInput() {
+            const container = document.getElementById('imageUrlContainer');
+            container.classList.toggle('hidden');
+        }
+
+        function insertTag(tag) {
+            const input = document.getElementById('newPostContent');
+            input.value += ` ${tag}`;
+            input.focus();
+        }
+
+        function renderPosts(filter = 'all') {
+            const container = document.getElementById('postsFeedContainer');
+            if (!container) return;
+
+            let postsToRender = [...appState.posts];
+
+            if (filter === 'following') {
+                // Filter posts from active connections
+                const connectedUserIds = appState.connections
+                    .filter(c => (c.from === appState.currentUser.id || c.to === appState.currentUser.id) && c.status === 'accepted')
+                    .map(c => c.from === appState.currentUser.id ? c.to : c.from);
+                
+                postsToRender = postsToRender.filter(p => connectedUserIds.includes(p.userId) || p.userId === appState.currentUser.id);
+            }
+
+            if (postsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="glass-panel p-8 text-center rounded-3xl border border-brand-border text-gray-400">
+                        <i class="fa-solid fa-comments text-3xl mb-2 text-brand-accent"></i>
+                        <p class="text-sm">No posts to display right now. Be the first to publish a post!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = postsToRender.map(post => {
+                const author = appState.users.find(u => u.id === post.userId) || { name: 'Unknown', avatar: '', username: 'user' };
+                const isLiked = post.likes.includes(appState.currentUser?.id);
+                const isMyPost = appState.currentUser && (appState.currentUser.id === post.userId || appState.currentUser.isOwner);
+
+                return `
+                    <div class="glass-panel p-4 sm:p-5 rounded-3xl border border-brand-border space-y-3">
+                        <!-- Post Header -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img src="${author.avatar}" class="w-10 h-10 rounded-full object-cover border border-brand-accent">
+                                <div>
+                                    <h4 class="font-bold text-sm text-gray-100 flex items-center space-x-1">
+                                        <span>${author.name}</span>
+                                        ${author.isOwner ? '<i class="fa-solid fa-crown text-amber-400 text-xs ml-1" title="Owner"></i>' : ''}
+                                    </h4>
+                                    <span class="text-xs text-gray-400">@${author.username} • ${timeAgo(post.createdAt)}</span>
+                                </div>
+                            </div>
+                            ${isMyPost ? `
+                                <button onclick="deletePost('${post.id}')" class="text-gray-400 hover:text-red-400 text-xs p-1">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <!-- Post Content -->
+                        <p class="text-sm text-gray-200 leading-relaxed">${escapeHtml(post.content)}</p>
+
+                        <!-- Optional Post Image -->
+                        ${post.imageUrl ? `
+                            <div class="rounded-2xl overflow-hidden border border-brand-border max-h-96">
+                                <img src="${post.imageUrl}" class="w-full h-full object-cover">
+                            </div>
+                        ` : ''}
+
+                        <!-- Post Reactions Bar -->
+                        <div class="flex items-center justify-between pt-2 border-t border-brand-border/40 text-xs text-gray-400">
+                            <button onclick="toggleLikePost('${post.id}')" class="flex items-center space-x-1.5 hover:text-red-400 transition ${isLiked ? 'text-red-500 font-bold' : ''}">
+                                <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart text-base"></i>
+                                <span>${post.likes.length} Likes</span>
+                            </button>
+                            <button onclick="toggleCommentBox('${post.id}')" class="flex items-center space-x-1.5 hover:text-brand-accent transition">
+                                <i class="fa-regular fa-comment text-base"></i>
+                                <span>${post.comments.length} Comments</span>
+                            </button>
+                            <button onclick="sharePost('${post.id}')" class="flex items-center space-x-1.5 hover:text-purple-400 transition">
+                                <i class="fa-solid fa-share text-base"></i>
+                                <span>Share</span>
+                            </button>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div id="comments-box-${post.id}" class="hidden space-y-2 pt-2 border-t border-brand-border/40">
+                            <div class="flex space-x-2">
+                                <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." 
+                                    class="flex-1 bg-[#0B0B10] border border-brand-border rounded-xl px-3 py-1.5 text-xs text-gray-200 focus:outline-none">
+                                <button onclick="addComment('${post.id}')" class="px-3 py-1.5 rounded-xl bg-brand-accent text-white text-xs font-bold">Post</button>
+                            </div>
+                            <div class="space-y-1.5 max-h-40 overflow-y-auto">
+                                ${post.comments.map(c => {
+                                    const cAuthor = appState.users.find(u => u.id === c.userId) || { name: 'User' };
+                                    return `
+                                        <div class="p-2 rounded-xl bg-[#0B0B10] text-xs">
+                                            <span class="font-bold text-brand-accent">${cAuthor.name}: </span>
+                                            <span class="text-gray-300">${escapeHtml(c.text)}</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleLikePost(postId) {
+            const post = appState.posts.find(p => p.id === postId);
+            if (!post) return;
+
+            const index = post.likes.indexOf(appState.currentUser.id);
+            if (index > -1) {
+                post.likes.splice(index, 1);
+            } else {
+                post.likes.push(appState.currentUser.id);
+            }
+            saveStorage();
+            renderPosts();
+        }
+
+        function toggleCommentBox(postId) {
+            const box = document.getElementById(`comments-box-${postId}`);
+            if (box) box.classList.toggle('hidden');
+        }
+
+        function addComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const post = appState.posts.find(p => p.id === postId);
+            if (post) {
+                post.comments.push({
+                    id: `c-${Date.now()}`,
+                    userId: appState.currentUser.id,
+                    text: text,
+                    createdAt: new Date().toISOString()
+                });
+                saveStorage();
+                renderPosts();
+            }
+        }
+
+        function deletePost(postId) {
+            if (confirm('Are you sure you want to delete this post?')) {
+                appState.posts = appState.posts.filter(p => p.id !== postId);
+                saveStorage();
+                renderPosts();
+            }
+        }
+
+        function filterFeed(type) {
+            document.getElementById('feed-filter-all').className = type === 'all' ? "px-3 py-1 rounded-lg font-medium text-brand-accent bg-brand-bg" : "px-3 py-1 rounded-lg font-medium text-gray-400 hover:text-gray-200";
+            document.getElementById('feed-filter-following').className = type === 'following' ? "px-3 py-1 rounded-lg font-medium text-brand-accent bg-brand-bg" : "px-3 py-1 rounded-lg font-medium text-gray-400 hover:text-gray-200";
+            renderPosts(type);
+        }
+
+        /* ==========================================================================
+           EXPLORE & SEARCH ENGINE
+           ========================================================================== */
+
+        function renderExploreUsers(query = '') {
+            const container = document.getElementById('exploreUsersList');
+            if (!container) return;
+
+            const filteredUsers = appState.users.filter(u => {
+                if (u.id === appState.currentUser?.id) return false;
+                if (!query) return true;
+                return u.name.toLowerCase().includes(query.toLowerCase()) || 
+                       u.username.toLowerCase().includes(query.toLowerCase()) ||
+                       u.bio.toLowerCase().includes(query.toLowerCase());
+            });
+
+            if (filteredUsers.length === 0) {
+                container.innerHTML = `<div class="col-span-2 text-center text-xs text-gray-400 py-4">No matching users found.</div>`;
+                return;
+            }
+
+            container.innerHTML = filteredUsers.map(u => {
+                const isConnected = appState.connections.some(c => 
+                    (c.from === appState.currentUser.id && c.to === u.id) || (c.from === u.id && c.to === appState.currentUser.id)
+                );
+
+                return `
+                    <div class="glass-panel p-4 rounded-2xl border border-brand-border flex items-center justify-between">
+                        <div class="flex items-center space-x-3 overflow-hidden">
+                            <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover border border-brand-purple">
+                            <div class="overflow-hidden">
+                                <h4 class="font-bold text-xs text-gray-100 truncate">${u.name}</h4>
+                                <p class="text-[10px] text-gray-400 truncate">@${u.username}</p>
+                            </div>
+                        </div>
+                        <button onclick="sendFriendRequest('${u.id}')" ${isConnected ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl text-xs font-bold ${isConnected ? 'bg-gray-800 text-gray-500' : 'bg-brand-accent text-white hover:bg-blue-600'} transition shrink-0">
+                            ${isConnected ? 'Connected' : 'Connect'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function handleSearch(val) {
+            renderExploreUsers(val);
+        }
+
+        /* ==========================================================================
+           CONNECTIONS & FRIENDS ENGINE
+           ========================================================================== */
+
+        function sendFriendRequest(targetUserId) {
+            if (!appState.currentUser) return;
+            
+            appState.connections.push({
+                from: appState.currentUser.id,
+                to: targetUserId,
+                status: 'pending'
+            });
+            saveStorage();
+            renderExploreUsers();
+            renderConnections();
+            alert('Connection request sent!');
+        }
+
+        function renderConnections() {
+            const pendingContainer = document.getElementById('pendingRequestsList');
+            const activeContainer = document.getElementById('activeFriendsList');
+            const totalBadge = document.getElementById('connectionsCountBadge');
+            const totalText = document.getElementById('connectionsTotalText');
+
+            const pending = appState.connections.filter(c => c.to === appState.currentUser?.id && c.status === 'pending');
+            const active = appState.connections.filter(c => 
+                (c.from === appState.currentUser?.id || c.to === appState.currentUser?.id) && c.status === 'accepted'
+            );
+
+            if (totalBadge) totalBadge.innerText = active.length;
+            if (totalText) totalText.innerText = `${active.length} Connections`;
+
+            // Pending Requests Render
+            if (pending.length === 0) {
+                pendingContainer.innerHTML = `<p class="text-xs text-gray-500">No pending connection requests.</p>`;
+            } else {
+                pendingContainer.innerHTML = pending.map(req => {
+                    const sender = appState.users.find(u => u.id === req.from);
+                    return `
+                        <div class="p-3 bg-[#15151F] rounded-2xl border border-brand-border flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img src="${sender.avatar}" class="w-8 h-8 rounded-full border border-brand-accent">
+                                <span class="text-xs font-bold text-gray-200">${sender.name}</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="acceptRequest('${req.from}')" class="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-xl">Accept</button>
+                                <button onclick="declineRequest('${req.from}')" class="px-3 py-1 bg-red-900/40 text-red-300 text-xs font-bold rounded-xl">Decline</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Active Connections Render
+            if (active.length === 0) {
+                activeContainer.innerHTML = `<p class="col-span-2 text-xs text-gray-500">You have no active connections yet.</p>`;
+            } else {
+                activeContainer.innerHTML = active.map(c => {
+                    const friendId = c.from === appState.currentUser.id ? c.to : c.from;
+                    const friend = appState.users.find(u => u.id === friendId);
+                    return `
+                        <div class="glass-panel p-3 rounded-2xl border border-brand-border flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img src="${friend.avatar}" class="w-9 h-9 rounded-full object-cover border border-emerald-400">
+                                <div>
+                                    <h4 class="font-bold text-xs text-gray-100">${friend.name}</h4>
+                                    <span class="text-[10px] text-emerald-400">Online</span>
+                                </div>
+                            </div>
+                            <button onclick="startDirectChat('${friend.id}')" class="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl">
+                                Chat
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function acceptRequest(fromUserId) {
+            const req = appState.connections.find(c => c.from === fromUserId && c.to === appState.currentUser.id);
+            if (req) {
+                req.status = 'accepted';
+                saveStorage();
+                renderConnections();
+            }
+        }
+
+        function declineRequest(fromUserId) {
+            appState.connections = appState.connections.filter(c => !(c.from === fromUserId && c.to === appState.currentUser.id));
+            saveStorage();
+            renderConnections();
+        }
+
+        /* ==========================================================================
+           TELEGRAM-INSPIRED MESSAGING ENGINE
+           ========================================================================== */
+
+        function renderConversations() {
+            const container = document.getElementById('conversationsList');
+            if (!container) return;
+
+            container.innerHTML = appState.conversations.map(conv => {
+                let name = conv.name;
+                let avatar = 'https://placehold.co/100x100/15151F/8B5CF6?text=Group';
+
+                if (!conv.isGroup) {
+                    const otherUserId = conv.participants.find(id => id !== appState.currentUser.id);
+                    const otherUser = appState.users.find(u => u.id === otherUserId) || { name: 'Direct Chat', avatar: '' };
+                    name = otherUser.name;
+                    avatar = otherUser.avatar;
+                }
+
+                const lastMsg = conv.messages[conv.messages.length - 1] || { text: 'No messages yet' };
+
+                return `
+                    <div onclick="openChatWindow('${conv.id}')" class="p-3 hover:bg-brand-cardHover cursor-pointer flex items-center space-x-3 transition ${currentActiveChatId === conv.id ? 'bg-brand-cardHover border-l-4 border-brand-accent' : ''}">
+                        <img src="${avatar}" class="w-10 h-10 rounded-full object-cover border border-brand-purple">
+                        <div class="flex-1 overflow-hidden">
+                            <h4 class="font-bold text-xs text-gray-100 truncate">${name}</h4>
+                            <p class="text-[11px] text-gray-400 truncate">${escapeHtml(lastMsg.text)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openChatWindow(convId) {
+            currentActiveChatId = convId;
+            const conv = appState.conversations.find(c => c.id === convId);
+            if (!conv) return;
+
+            document.getElementById('chatSidebar').classList.add('hidden', 'md:flex');
+            document.getElementById('chatWindow').classList.remove('hidden');
+            document.getElementById('chatWindow').classList.add('flex');
+
+            let title = conv.name;
+            let avatar = 'https://placehold.co/100x100/15151F/8B5CF6?text=Group';
+
+            if (!conv.isGroup) {
+                const otherUserId = conv.participants.find(id => id !== appState.currentUser.id);
+                const otherUser = appState.users.find(u => u.id === otherUserId) || { name: 'Direct Chat', avatar: '' };
+                title = otherUser.name;
+                avatar = otherUser.avatar;
+            }
+
+            document.getElementById('chatHeaderTitle').innerText = title;
+            document.getElementById('chatHeaderAvatar').src = avatar;
+
+            renderChatMessages();
+            renderConversations();
+        }
+
+        function renderChatMessages() {
+            const container = document.getElementById('chatMessagesContainer');
+            const conv = appState.conversations.find(c => c.id === currentActiveChatId);
+            if (!conv || !container) return;
+
+            container.innerHTML = conv.messages.map(msg => {
+                const isMe = msg.senderId === appState.currentUser.id;
+                const sender = appState.users.find(u => u.id === msg.senderId) || { name: 'User' };
+
+                return `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <span class="text-[10px] text-gray-500 mb-0.5 px-1">${sender.name}</span>
+                        <div class="max-w-[80%] rounded-2xl px-4 py-2.5 text-xs ${isMe ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-none' : 'bg-[#15151F] border border-brand-border text-gray-200 rounded-bl-none'}">
+                            ${escapeHtml(msg.text)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !currentActiveChatId) return;
+
+            const conv = appState.conversations.find(c => c.id === currentActiveChatId);
+            if (conv) {
+                conv.messages.push({
+                    id: `m-${Date.now()}`,
+                    senderId: appState.currentUser.id,
+                    text: text,
+                    timestamp: new Date().toISOString()
+                });
+                saveStorage();
+                input.value = '';
+                renderChatMessages();
+                renderConversations();
+            }
+        }
+
+        function startDirectChat(targetUserId) {
+            let conv = appState.conversations.find(c => !c.isGroup && c.participants.includes(appState.currentUser.id) && c.participants.includes(targetUserId));
+            
+            if (!conv) {
+                conv = {
+                    id: `chat-${Date.now()}`,
+                    name: 'Direct Chat',
+                    isGroup: false,
+                    participants: [appState.currentUser.id, targetUserId],
+                    messages: []
+                };
+                appState.conversations.push(conv);
+                saveStorage();
+            }
+
+            navigateTo('messages');
+            openChatWindow(conv.id);
+        }
+
+        function backToChatList() {
+            document.getElementById('chatSidebar').classList.remove('hidden');
+            document.getElementById('chatWindow').classList.add('hidden');
+        }
+
+        function openNewGroupModal() { document.getElementById('newGroupModal').classList.remove('hidden'); }
+        function closeNewGroupModal() { document.getElementById('newGroupModal').classList.add('hidden'); }
+
+        function createGroupChat() {
+            const name = document.getElementById('groupNameInput').value.trim();
+            if (!name) return;
+
+            const newGroup = {
+                id: `group-${Date.now()}`,
+                name: name,
+                isGroup: true,
+                participants: [appState.currentUser.id],
+                messages: [{ id: `m-${Date.now()}`, senderId: appState.currentUser.id, text: `Group "${name}" created.`, timestamp: new Date().toISOString() }]
+            };
+
+            appState.conversations.push(newGroup);
+            saveStorage();
+            closeNewGroupModal();
+            renderConversations();
+            openChatWindow(newGroup.id);
+        }
+
+        /* ==========================================================================
+           USER PROFILE & EDIT ENGINE
+           ========================================================================== */
+
+        function renderUserProfile() {
+            const u = appState.currentUser;
+            if (!u) return;
+
+            document.getElementById('profileAvatar').src = u.avatar;
+            document.getElementById('profileName').innerText = u.name;
+            document.getElementById('profileHandle').innerText = `@${u.username}`;
+            document.getElementById('profileBio').innerText = u.bio || 'No bio provided.';
+
+            const userPosts = appState.posts.filter(p => p.userId === u.id);
+            document.getElementById('profilePostsCount').innerText = userPosts.length;
+
+            const activeConnections = appState.connections.filter(c => (c.from === u.id || c.to === u.id) && c.status === 'accepted');
+            document.getElementById('profileConnectionsCount').innerText = activeConnections.length;
+
+            renderUserPosts(userPosts);
+        }
+
+        function renderUserPosts(posts) {
+            const container = document.getElementById('profilePostsContainer');
+            if (!container) return;
+
+            if (posts.length === 0) {
+                container.innerHTML = `<div class="glass-panel p-6 rounded-2xl text-center text-xs text-gray-400 border border-brand-border">You haven't posted anything yet.</div>`;
+                return;
+            }
+
+            container.innerHTML = posts.map(p => `
+                <div class="glass-panel p-4 rounded-2xl border border-brand-border text-xs text-gray-200">
+                    <p>${escapeHtml(p.content)}</p>
+                    <span class="text-[10px] text-gray-500 mt-2 block">${timeAgo(p.createdAt)}</span>
+                </div>
+            `).join('');
+        }
+
+        function openEditProfileModal() {
+            document.getElementById('editProfileName').value = appState.currentUser.name;
+            document.getElementById('editProfileBio').value = appState.currentUser.bio;
+            document.getElementById('editProfileAvatarUrl').value = appState.currentUser.avatar;
+            document.getElementById('editProfileModal').classList.remove('hidden');
+        }
+
+        function closeEditProfileModal() { document.getElementById('editProfileModal').classList.add('hidden'); }
+
+        function saveProfileDetails(e) {
+            e.preventDefault();
+            appState.currentUser.name = document.getElementById('editProfileName').value.trim();
+            appState.currentUser.bio = document.getElementById('editProfileBio').value.trim();
+            appState.currentUser.avatar = document.getElementById('editProfileAvatarUrl').value.trim() || appState.currentUser.avatar;
+
+            saveStorage();
+            closeEditProfileModal();
+            renderUserProfile();
+            renderHeaderAndSidebar();
+        }
+
+        function triggerAvatarEdit() { openEditProfileModal(); }
+        function triggerCoverEdit() { alert('Cover photo upload updated!'); }
+
+        /* ==========================================================================
+           SUBSCRIPTION & TELEBIRR PAYMENT ENGINE
+           ========================================================================== */
+
+        let selectedPlanForPayment = 'monthly';
+
+        function initiateTelebirrPayment(planType) {
+            selectedPlanForPayment = planType;
+            const price = planType === 'monthly' ? appState.settings.monthlyPrice : appState.settings.annualPrice;
+            
+            document.getElementById('telebirrModalPlanText').innerText = `${planType.toUpperCase()} PASS ACCESS`;
+            document.getElementById('telebirrModalPriceText').innerText = `${price} ETB`;
+            document.getElementById('telebirrModal').classList.remove('hidden');
+        }
+
+        function closeTelebirrModal() { document.getElementById('telebirrModal').classList.add('hidden'); }
+
+        function submitTelebirrProof() {
+            const txId = document.getElementById('telebirrTxInput').value.trim();
+            if (!txId) {
+                alert('Please enter Telebirr reference ID.');
+                return;
+            }
+
+            const paymentRecord = {
+                id: `pay-${Date.now()}`,
+                userId: appState.currentUser.id,
+                userName: appState.currentUser.name,
+                plan: selectedPlanForPayment,
+                amount: selectedPlanForPayment === 'monthly' ? appState.settings.monthlyPrice : appState.settings.annualPrice,
+                reference: txId,
+                status: 'PENDING',
+                createdAt: new Date().toISOString()
+            };
+
+            appState.payments.push(paymentRecord);
+            saveStorage();
+
+            closeTelebirrModal();
+            alert('Payment slip submitted to Scarface Admin for instant verification!');
+        }
+
+        /* ==========================================================================
+           SCARFACE OWNER ADMIN DASHBOARD ENGINE
+           ========================================================================== */
+
+        function loadAdminStats() {
+            if (!appState.currentUser || !appState.currentUser.isOwner) return;
+
+            document.getElementById('statTotalUsers').innerText = appState.users.length;
+            document.getElementById('statTotalPosts').innerText = appState.posts.length;
+            document.getElementById('statSystemMode').innerText = appState.settings.mode;
+            
+            const pendingPays = appState.payments.filter(p => p.status === 'PENDING');
+            document.getElementById('statPendingPayments').innerText = pendingPays.length;
+
+            document.getElementById('adminModeSelect').value = appState.settings.mode;
+            document.getElementById('adminMonthlyPrice').value = appState.settings.monthlyPrice;
+            document.getElementById('adminAnnualPrice').value = appState.settings.annualPrice;
+
+            renderAdminPaymentQueue();
+            renderAdminUsersTable();
+        }
+
+        function saveAdminSettings() {
+            appState.settings.mode = document.getElementById('adminModeSelect').value;
+            appState.settings.monthlyPrice = parseFloat(document.getElementById('adminMonthlyPrice').value) || 5;
+            appState.settings.annualPrice = parseFloat(document.getElementById('adminAnnualPrice').value) || 60;
+
+            saveStorage();
+            renderHeaderAndSidebar();
+            alert('Scarface Admin settings updated successfully!');
+        }
+
+        function renderAdminPaymentQueue() {
+            const container = document.getElementById('adminPaymentQueue');
+            const pending = appState.payments.filter(p => p.status === 'PENDING');
+
+            if (pending.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 p-3">No pending Telebirr slips in queue.</p>`;
+                return;
+            }
+
+            container.innerHTML = pending.map(p => `
+                <div class="p-3 text-xs flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-gray-200">${p.userName}</span>
+                        <p class="text-[10px] text-amber-400">Ref: ${p.reference} (${p.amount} ETB)</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="approvePayment('${p.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold">Approve</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function approvePayment(payId) {
+            const pay = appState.payments.find(p => p.id === payId);
+            if (pay) {
+                pay.status = 'VERIFIED';
+                const user = appState.users.find(u => u.id === pay.userId);
+                if (user) user.status = 'PAID VIP';
+                saveStorage();
+                loadAdminStats();
+                alert('Telebirr payment approved!');
+            }
+        }
+
+        function renderAdminUsersTable() {
+            const tbody = document.getElementById('adminUserTableBody');
+            tbody.innerHTML = appState.users.map(u => `
+                <tr>
+                    <td class="p-3 flex items-center space-x-2">
+                        <img src="${u.avatar}" class="w-6 h-6 rounded-full">
+                        <span class="font-bold text-gray-100">${u.name}</span>
+                    </td>
+                    <td class="p-3 text-gray-400">${u.email}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] bg-purple-900/50 text-purple-300 font-bold">${u.status}</span></td>
+                    <td class="p-3">
+                        ${!u.isOwner ? `<button onclick="deleteUser('${u.id}')" class="text-red-400 hover:underline">Delete</button>` : '<span class="text-amber-400 font-bold">Owner</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Delete this user account permanently?')) {
+                appState.users = appState.users.filter(u => u.id !== userId);
+                saveStorage();
+                loadAdminStats();
+            }
+        }
+
+        /* ==========================================================================
+           UTILITY FUNCTIONS
+           ========================================================================== */
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return `${Math.floor(hours / 24)}d ago`;
+        }
+
+        function toggleNotificationDropdown() {
+            document.getElementById('notificationDropdown').classList.toggle('hidden');
+        }
+
+        function toggleUserDropdown() {
+            navigateTo('profile');
+        }
+
+        function clearNotifications() {
+            document.getElementById('notificationList').innerHTML = `<p class="p-4 text-xs text-gray-500 text-center">No new notifications.</p>`;
+        }
+    </script>
+</body>
+</html>
